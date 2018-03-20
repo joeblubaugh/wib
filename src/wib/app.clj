@@ -18,6 +18,9 @@
    ["-w" "--wind WIND" "Wind speed"
     :default 1.0
     :parse-fn #(Float/parseFloat %)]
+   ["-f" "--file PATH" "Output file path"
+    :default nil
+    ]
    ])
 
 ; Program config, changed by developer

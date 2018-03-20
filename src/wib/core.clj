@@ -14,14 +14,14 @@
   )
 
 (defn pleasantness [args]
-  "Returns a number on [-1 1] where: 
+  "Returns a number on [-1 1] where:
   -1 is 'unpleasant-cold',
   0 is 'pleasant'
   1 is 'unpleasant-hot'"
   (let [{high :high
-        low :low
-        w :wind
-        p :precip} (:options args)
+         low :low
+         w :wind
+         p :precip} (:options args)
         hFactor 0.05
         idealH 76
         lFactor 0.025
@@ -35,7 +35,7 @@
         wDiff (- w idealW)
         pDiff (- p idealP)
         ]
-    (clamp 
+    (clamp
       (+ (* hFactor hDiff)
          (* lFactor lDiff)
          (* wFactor (* -1 wDiff)) ; high wind makes it colder
@@ -69,7 +69,7 @@
 
   ; Create initial state from config
   (let [pl (pleasantness args)
-        palette (cond 
+        palette (cond
                   (< pl -0.4) (:cold-palette config)
                   (> pl 0.4) (:hot-palette config)
                   :else (:pleasant-palette config))]
@@ -82,6 +82,8 @@
         (assoc :squareinc (:squareinc config))
         (assoc :spacing (:spacing config))
         (assoc :sidelen (:sidelen config))
+        (assoc :outfile (:file (:options args)))
+
         ; varies
         (assoc :color (rand-nth palette))
         (assoc :x 0)
@@ -95,15 +97,11 @@
   (println args)
   (println config)
   (partial setup args config)
-)
+  )
 
 
 (defn update-state [state]
   "Advances the state of the sketch by moving through the grid and exiting when done."
-  ; weirdly, need to do maxx - 2 because a draw is already queued up
-  (if (and (= (:y state) (- (:maxy state) 1)) (= (:x state) (- (:maxx state) 2))) (do 
-                                           (println "done")
-                                           (q/no-loop)))
   (-> state
       (assoc :color (rand-nth [(:color state) (:color state) (rand-nth (:palette state))]))
       (assoc :x (mod (+ (:x state) 1) (:maxx state)))
@@ -117,16 +115,16 @@
 
 (defn draw [state]
   "Draws one square-triangle per iteration."
-  
+
   (let [[h s b] (:color state)
         {vh :h vs :s vb :b} (:variation state)
         color [(randaround h vh) (randaround s vs) (randaround b vb)]
-        {squareinc :squareinc 
-         spacing :spacing 
-         sidelen :sidelen 
+        {squareinc :squareinc
+         spacing :spacing
+         sidelen :sidelen
          up :up} state
-        x1 (+ (* (:x state) squareinc) spacing) 
-        y1 (+ (* (:y state) squareinc) spacing) 
+        x1 (+ (* (:x state) squareinc) spacing)
+        y1 (+ (* (:y state) squareinc) spacing)
         x2 (+ x1 sidelen)
         y2 (+ y1 sidelen)
         x3 (+ x1 (cond up sidelen :else 0))
@@ -134,13 +132,26 @@
         x4 (+ x1 (cond up 0 :else sidelen))
         y4 (+ y1 (cond up sidelen :else 0))
         ]
-         
-        ; "Real" triangle
-        (apply q/stroke color)
-        (q/stroke-weight 1)
-        (apply q/fill (conj color 75))
-        (q/triangle 
-          x1 y1 x2 y2 x3 y3)
 
-        ))
+    ; "Real" triangle
+    (apply q/stroke color)
+    (q/stroke-weight 1)
+    (apply q/fill (conj color 75))
+    (q/triangle
+      x1 y1 x2 y2 x3 y3)
+
+    )
+
+  ; Termination condition
+  (if (and (= (:y state) (- (:maxy state) 1))
+           (= (:x state) (- (:maxx state) 1)))
+    (do
+      (println "done")
+      (println (:outfile state))
+      (if (some? (:outfile state))
+        (q/save (:outfile state))
+        )
+      (q/no-loop)
+      (q/exit)))
+  )
 
