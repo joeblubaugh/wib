@@ -53,7 +53,7 @@
      :squareinc squareinc
      :spacing spacing
      :maxx 7 
-     :maxy 4
+     :maxy 5
      ; How much randomness to apply around a color number
      :variation {:h 10 :s 5 :b 5}
      } 
