@@ -5,4 +5,6 @@
                  [org.clojure/math.numeric-tower "0.0.4"]
                  [org.clojure/tools.cli "0.3.5"]
                  [quil "2.6.0"]]
+  :aot [wib.app wib.core]
+  :main wib.app
   )

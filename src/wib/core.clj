@@ -49,6 +49,24 @@
   (q/frame-rate 30)
   ; Set color mode to HSB (HSV) instead of default RGB.
   (q/color-mode :hsb 360 100 100 1.0)
+
+  (let [w (q/width)
+        font-size (/ w 9)
+        hoff (/ w 22)
+        voff (/ w 6.5)]
+    (try
+      (q/text-font (q/create-font "mononoki-Regular.ttf" font-size true))
+
+      ; Draw the text
+      (q/stroke 0 0 0)
+      (q/fill 0 0 0)
+      (q/text "the weather in" hoff (- (q/height) voff))
+      (q/text "brooklyn" hoff (- (q/height) (- voff font-size)))
+      (catch Exception e)
+      )
+    )
+
+
   ; Create initial state from config
   (let [pl (pleasantness args)
         palette (cond 
@@ -74,6 +92,8 @@
 
 (defn preset [args config]
   "Applies config and returns a no-arg 'setup' function"
+  (println args)
+  (println config)
   (partial setup args config)
 )
 
