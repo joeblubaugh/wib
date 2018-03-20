@@ -50,8 +50,24 @@
   ; Set color mode to HSB (HSV) instead of default RGB.
   (q/color-mode :hsb 360 100 100 1.0)
   ; Create initial state from config
-  (let [pl (pleasantness args)]
-    {}))
+  (let [pl (pleasantness args)
+        palette (cond 
+                  (< pleasantness -0.4) (:cold-palette config)
+                  (> pleasantness 0.4) (:hot-palette config)
+                  :else (:pleasant-palette config))]
+    (-> {}
+        ; constants
+        (assoc :palette palette)
+        (assoc :color-variation (:variation config))
+        (assoc :maxx (:maxx config))
+        (assoc :maxy (:maxy config))
+        ; varies
+        (assoc :color (:rand-nth palette))
+        (assoc :x 0)
+        (assoc :y 0)
+        (assoc :up (rand-nth [true false]))
+        ))
+  )
 
 (defn preset [args config]
   "Applies config and returns a no-arg 'setup' function"
@@ -61,7 +77,13 @@
 
 (defn update-state [state]
   "Advances the state of the sketch by moving through the grid and exiting when done."
-  {})
+  (-> state
+      (assoc :color (rand-nth [(:color state) (:color state) (rand-nth (:palette state))]))
+      (assoc :x (mod (+ (:x state) 1) (:maxx state)))
+      (assoc :y (cond (= (:x state) (:maxx state)) (+ (:y state 1)) :else (:y state)))
+      (assoc :up (rand-nth [true false]))
+      )
+  )
 
 (defn draw [state]
   "Draws one square-triangle per iteration."
