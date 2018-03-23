@@ -103,7 +103,7 @@
 (defn update-state [state]
   "Advances the state of the sketch by moving through the grid and exiting when done."
   (-> state
-      (assoc :color (rand-nth [(:color state) (:color state) (rand-nth (:palette state))]))
+      (assoc :color (rand-nth [(:color state) (rand-nth (:palette state))]))
       (assoc :x (mod (+ (:x state) 1) (:maxx state)))
       (assoc :y (cond (= (:x state) (- (:maxx state) 1)) (+ (:y state) 1) :else (:y state)))
       (assoc :up (rand-nth [true false]))
@@ -135,12 +135,10 @@
 
     ; "Real" triangle
     (apply q/stroke color)
-    (q/stroke-weight 1)
-    (apply q/fill (conj color 75))
+    (q/stroke-weight 3)
+    (apply q/fill (conj color 0.5))
     (q/triangle
-      x1 y1 x2 y2 x3 y3)
-
-    )
+       x1 y1 x2 y2 x3 y3))
 
   ; Termination condition
   (if (and (= (:y state) (- (:maxy state) 1))
